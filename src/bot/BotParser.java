@@ -16,6 +16,9 @@
 //    file that was distributed with this source code.
 
 package bot;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Scanner;
 
 /**
@@ -27,20 +30,31 @@ import java.util.Scanner;
  * @author Jim van Eeden <jim@starapple.nl>, Joost de Meij <joost@starapple.nl>
  */
 
-public class BotParser {
+public class BotParser implements Runnable {
     
 	final Scanner scan;
-    final BotStarter bot;
+    static BotStarter bot;
     
     private Field mField;
     public static int mBotId = 0;
     public boolean toldBotWhoStarts = false;
+    public static OutputStream out;
 
     
-    public BotParser(BotStarter bot) {
-		this.scan = new Scanner(System.in);
-		this.bot = bot;
+    public BotParser(InputStream s, OutputStream o) {
+		this.scan = new Scanner(s);
+		out = o;
 	}
+    
+    public static void writeOut(String s) {
+    	try {
+			out.write(s.getBytes());
+			out.write((byte)'\n');
+	    	out.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
     
     public void run() {
         mField = new Field(0, 0);
@@ -62,7 +76,8 @@ public class BotParser {
                 }
                 if (parts[1].equals("your_botid")) {
                     mBotId = Integer.parseInt(parts[2]);
-                    bot.setMyDisc(mBotId);
+                    int oppId = mBotId == 1 ? 2 : 1;
+                    this.bot = new BotStarter(new SimpleHeuristic(), mBotId, oppId);
                 }
             } else if(parts[0].equals("update")) { /* new field data */
                 if (parts[2].equals("field")) {
@@ -72,16 +87,26 @@ public class BotParser {
                 }
             } else if(parts[0].equals("action")) {
             	if (!toldBotWhoStarts) {
+            		toldBotWhoStarts = true;
             		bot.field.setOurTurn();
             	}
                 if (parts[1].equals("move")) { /* move requested */
                     int column = bot.makeTurn();
-                    System.out.println("place_disc " + column);
+                    writeOut("place_disc " + column);
                 }
             }
             else { 
-                System.out.println("unknown command");
+            	writeOut("unknown command");
             }
         }
+    }
+
+    public static void println(String s) {
+    	System.out.println("[BOT]: " + s + "\n");
+    }
+    
+    public static void main(String[] args) {
+   	 BotParser parser = new BotParser(System.in, System.out);
+   	 parser.run();
     }
 }

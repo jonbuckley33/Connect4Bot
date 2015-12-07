@@ -5,6 +5,10 @@ import bot.Field;
 public class TestField {
 
 	public static void main(String[] args) {
+		runAllTests();
+	}
+	
+	public static void runAllTests() {
 		if (testEmptyField()) {
 			System.out.println("PASSED testEmptyField");
 		} else {
@@ -41,7 +45,6 @@ public class TestField {
 			System.out.println("FAILED testFull");
 		}
 	}
-	
 	
 	public static boolean testEmptyField() {
 		Field f = new Field(4, 4);

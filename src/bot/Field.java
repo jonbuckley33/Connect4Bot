@@ -28,8 +28,8 @@ public class Field {
 	private int[][] mBoard;
 	private int mCols = 0, mRows = 0;
 	private String mLastError = "";
-	public int mLastColumn = 0;
-	public int mLastRow = 0;
+	public int mLastColumn = -2;
+	public int mLastRow = -2;
 	public boolean ourMove = false;
 	
 	public Field(int columns, int rows) {
@@ -79,12 +79,10 @@ public class Field {
 	 */
 	public Boolean addDisc(int column, int disc) {
 		mLastError = "";
-		// Use opposite sign to denote opponent move.
-		if (!ourMove) {
-			disc = -disc;
-		}
+
 		// Switch turns.
 		ourMove = !ourMove;
+		
 		if (column < mCols) {
 			for (int y = mRows-1; y >= 0; y--) { // From bottom column up
 				if (mBoard[column][y] == 0) {
@@ -159,12 +157,40 @@ public class Field {
 		int counter = 0;
 		for (int y = 0; y < mRows; y++) {
 			for (int x = 0; x < mCols; x++) {
-				if (counter > 0) {
+				if (x > 0 && x < mCols) {
 					r += ",";
 				}
 				r += mBoard[x][y];
 				counter++;
 			}
+			if (y != mRows - 1) {
+				r += ";";
+			}
+		}
+		return r;
+	}
+	
+	public String toPrettyString() {
+		String r = "";
+		int counter = 0;
+		for (int y = 0; y < mRows; y++) {
+			r += "| ";
+			for (int x = 0; x < mCols; x++) {
+				if (x > 0 && x < mCols) {
+					r += ", ";
+				} else if (x == mCols) {
+					r += "; ";
+				}
+				if (mBoard[x][y] == 1) {
+					r += "x";
+				} else if (mBoard[x][y] == 2) {
+					r += "*";
+				} else {
+					r += "o";
+				}
+				counter++;
+			}
+			r += " |\n";
 		}
 		return r;
 	}
@@ -207,6 +233,11 @@ public class Field {
 	public boolean isTerminal() {
 		if (this.isFull()) {
 			return true;
+		}
+		
+		// Haven't started yet.
+		if (this.mLastColumn < 0) {
+			return false;
 		}
 		
 		int disc = getDisc(mLastColumn, mLastRow);
@@ -278,6 +309,7 @@ public class Field {
 	public Field DeepCopy() {
 		Field copy = new Field(mCols, mRows);
 		copy.parseFromString(this.toString());
+		copy.ourMove = ourMove;
 		
 		return copy;
 	}

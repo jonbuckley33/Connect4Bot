@@ -34,12 +34,10 @@ public class BotStarter {
 	public Field field;
 	Heuristic h;
 
-	public BotStarter(Heuristic h) {
+	public BotStarter(Heuristic h, int myD, int oppD) {
 		this.h = h;
-	}
-	
-	public void setMyDisc(int disc) {
-		myDisc = disc;
+		this.myDisc = myD;
+		this.oppDisc = oppD;
 	}
 	
      /**
@@ -79,15 +77,20 @@ public class BotStarter {
 		 ArrayList<Integer> moves = generateMoves(f);
 
     	 if (isMaxiPlayer) {
-    		 float v = Float.MIN_VALUE;
+    		 float v = -Float.MAX_VALUE;
     		 int bestMove = -1;
     		 
     		 for (Integer m : moves) {
     			 Field child = f.DeepCopy();
-    			 child.addDisc(m, myDisc);
+    			 
+    			 if (child.ourMove) {
+        			 child.addDisc(m, myDisc);
+    			 } else {
+    				 child.addDisc(m, oppDisc);
+    			 }
     			 
     			 HeuristicValue val = alphabeta(child, depth - 1, alpha, beta, false).Value;    			 
-    			 if (v > val.value * val.probability) {
+    			 if (val.value * val.probability > v) {
     				 bestMove = m;
     				 v = val.value * val.probability;
     			 }
@@ -108,10 +111,15 @@ public class BotStarter {
     		 
     		 for (Integer m : moves) {
     			 Field child = f.DeepCopy();
-    			 child.addDisc(m, myDisc);
+    			 
+    			 if (child.ourMove) {
+        			 child.addDisc(m, myDisc);
+    			 } else {
+    				 child.addDisc(m, oppDisc);
+    			 }
     			 
     			 HeuristicValue val = alphabeta(child, depth - 1, alpha, beta, true).Value;
-    			 if (v < val.value * val.probability) {
+    			 if (val.value * val.probability < v) {
     				 bestMove = m;
     				 v = val.value * val.probability;
     			 }
@@ -135,15 +143,10 @@ public class BotStarter {
       * @return The column where the turn was made.
       */
      public int makeTurn() { 
-         return alphabeta(field, 10, Float.MIN_VALUE, Float.MAX_VALUE, true).Column;
+         return alphabeta(field, 2, -Float.MAX_VALUE, Float.MAX_VALUE, true).Column;
      }
 
      public void setField(Field f) {
     	 this.field = f;
-     }
-     
-     public static void main(String[] args) {
-    	 BotParser parser = new BotParser(new BotStarter(new SimpleHeuristic()));
-    	 parser.run();
      }
 }
