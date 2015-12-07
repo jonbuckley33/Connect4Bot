@@ -32,6 +32,10 @@ public class Field {
 	public int mLastRow = -2;
 	public boolean ourMove = false;
 	
+	public static final String ANSI_RESET = "\u001B[0m";
+	public static final String ANSI_RED = "\u001B[31m";
+	public static final String ANSI_BLUE = "\u001B[34m";
+	
 	public Field(int columns, int rows) {
 		mBoard = new int[columns][rows];
 		mCols = columns;
@@ -182,9 +186,9 @@ public class Field {
 					r += "; ";
 				}
 				if (mBoard[x][y] == 1) {
-					r += "x";
+					r += ANSI_RED + "x" + ANSI_RESET;
 				} else if (mBoard[x][y] == 2) {
-					r += "*";
+					r += ANSI_BLUE + "*" + ANSI_RESET;
 				} else {
 					r += "o";
 				}

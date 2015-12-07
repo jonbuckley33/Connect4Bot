@@ -108,13 +108,14 @@ public class Runner {
 			
 			// Bot won.
 			if (field.isTerminal()) {
+				println(field.toPrettyString());
 				System.out.println("BOT WINS");
 				break;
 			}
 			
 			System.out.println(field.toPrettyString());
 			
-			System.out.println("\nWhat's your move?");
+			System.out.println("\nWhat's your move? (Type the 0-indexed column number)");
             String line = humanInput.nextLine();
             move = Integer.parseInt(line);
             
@@ -124,6 +125,7 @@ public class Runner {
             
             // Human wins.
             if (field.isTerminal()) {
+				println(field.toPrettyString());
             	System.out.println("HUMAN WINS");
             	break;
             }
